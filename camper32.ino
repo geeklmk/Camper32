@@ -35,13 +35,16 @@ void setup()
   _readDHT22();
   Serial.println(F("Setup timed temperature read. 5sec interval"));
   timer.every(20000, readDHT22);
-  
+
+  Serial.println(F("Starting Operations"));
 }
 
+// helper function for scheduling
 bool readDHT22(void *) 
 {
   return _readDHT22();
 }
+// real funcion for reading sensor
 bool _readDHT22() 
 {
   // read with defaults. (Celsius)
@@ -55,6 +58,21 @@ bool _readDHT22()
   }
   // Heat index
   float heatIndex = dht.computeHeatIndex(temperature, humidity, false);
+    
+  debugLog_DHT22();
+  return true; // keep timer active? true
+}
+
+void loop() 
+{
+  // check the timed funcions
+  timer.tick(); 
+}
+
+// helper debug log functions
+
+void debugLog_DHT22()
+{
   Serial.print(F("Humidity: "));
   Serial.print(humidity);
   Serial.print(F("%  Temperature: "));
@@ -63,12 +81,4 @@ bool _readDHT22()
   Serial.print(F(" Heat index: "));
   Serial.print(heatIndex);
   Serial.println(F("°C "));
-
-  return true; // keep timer active? true
-}
-
-void loop() 
-{
-  // check the timed funcions
-  timer.tick(); 
 }
