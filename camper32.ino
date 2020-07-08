@@ -8,12 +8,16 @@
 
 #include "DHT.h"
 #include <arduino-timer.h>
+#include "C32_Heater.h"
 
 #define DHTPIN 4
 #define DHTTYPE DHT22
 
 // DHT Sensor init
 DHT dht(DHTPIN, DHTTYPE);
+
+// Heater 
+C32Heater heater( 1,2,3,4);
 // Setting up timer library
 auto timer = timer_create_default();
 
