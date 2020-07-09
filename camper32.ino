@@ -10,14 +10,26 @@
 #include <arduino-timer.h>
 #include "C32_Heater.h"
 
-#define DHTPIN 4
+// Temperature and Humidity Sensor
+#define DHT_PIN 4
 #define DHTTYPE DHT22
 
+// Water Heater pins
+#define WH_C50_PIN        5
+#define WH_C70_PIN        6
+#define WH_STARTING_PIN   7
+#define WH_ON_PIN         8
+
+// Water Pump pins
+#define WATER_PUMP_PIN    9
+#define LIGHTS_PIN        10
+
 // DHT Sensor init
-DHT dht(DHTPIN, DHTTYPE);
+DHT dht(DHT_PIN, DHTTYPE);
 
 // Heater 
-C32Heater heater( 1,2,3,4);
+C32Heater heater( WH_C50_PIN, WH_C70_PIN, WH_STARTING_PIN, WH_ON_PIN );
+
 // Setting up timer library
 auto timer = timer_create_default();
 
@@ -37,10 +49,33 @@ void setup()
   Serial.println(F("DHT22 temperature sensor init"));
   dht.begin();
   _readDHT22();
+  
+  Serial.println(F("Water Heater controller init"));
+  heater.stopHeater();
+  heater.onHeaterStarting = onHeaterStarting;
+  heater.onHeaterStarted  = onHeaterStarted;
+  heater.onHeaterStopped  = onHeaterStopped;
+  
   Serial.println(F("Setup timed temperature read. 5sec interval"));
   timer.every(20000, readDHT22);
 
   Serial.println(F("Starting Operations"));
+}
+
+// Water Heater Callbacks
+void onHeaterStarting()
+{
+  Serial.println(F("Heater starting"));
+}
+
+void onHeaterStarted()
+{
+  Serial.println(F("Heater started"));
+}
+
+void onHeaterStopped()
+{
+  Serial.println(F("Heater stopped"));
 }
 
 // helper function for scheduling
@@ -71,6 +106,7 @@ void loop()
 {
   // check the timed funcions
   timer.tick(); 
+  heater.updateHeater();
 }
 
 // helper debug log functions
